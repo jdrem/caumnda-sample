@@ -1,0 +1,21 @@
+plugins {
+    id 'net.remgant.java-application-conventions'
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-text'
+    implementation project(':utilities')
+
+    implementation platform("org.camunda.bpm:camunda-bom:${camundaPlatformVersion}")
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-external-task-client'
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest'
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp'
+    implementation 'org.camunda.bpm:camunda-engine-plugin-spin'
+    implementation 'org.camunda.spin:camunda-spin-dataformat-all'
+
+}
+
+application {
+    // Define the main class for the application.
+    mainClass = 'net.remgant.camunda.tasks.Application'
+}

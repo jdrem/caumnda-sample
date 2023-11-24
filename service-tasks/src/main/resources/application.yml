@@ -1,0 +1,28 @@
+server:
+  port: 8081
+
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+  client:
+    base-url: http://localhost:8080/engine-rest # The URL pointing to the Camunda Platform Runtime REST API
+    async-response-timeout: 1000 # Defines the maximum duration of the long-polling request
+    worker-id: spring-boot-client # Identifies the worker towards the Engine
+    #      basic-auth: # Configure if REST API is secured with basic authentication
+    #        username: my-username
+    #        password: my-password
+    subscriptions:
+      process-order:
+        lock-duration: 10000 # Defines for how long the External Tasks are locked until they can be fetched again
+
+#spring:
+#  datasource:
+#    url: jdbc:h2:mem:testdb
+#    driver-class-name: org.h2.Driver
+#    username: sa
+#    password:
+#  jpa:
+#    database-platform: org.hibernate.dialest.H2Dialect
+
+logging.level.org.camunda.bpm.client: info
