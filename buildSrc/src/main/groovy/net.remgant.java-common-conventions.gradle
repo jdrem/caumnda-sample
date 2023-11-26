@@ -43,12 +43,21 @@ dependencies {
     implementation 'org.graalvm.js:js:21.1.0'
     implementation 'org.graalvm.js:js-scriptengine:21.1.0'
 
-    implementation 'javax.xml.bind:jaxb-api:2.3.1'
-
     runtimeOnly 'ch.qos.logback:logback-core:1.2.11'
     runtimeOnly 'ch.qos.logback:logback-classic:1.2.11'
 
-    implementation 'com.h2database:h2-mvstore:2.1.214'
+    implementation ('jakarta.xml.bind:jakarta.xml.bind-api') {
+        version {
+            strictly '[2.3.0, 3.0['
+            prefer '2.3.3'
+        }
+    }
+    runtimeOnly ('com.sun.xml.bind:jaxb-impl') {
+        version {
+            strictly '[2.3.0, 3.0['
+            prefer '2.3.9'
+        }
+    }
 
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
