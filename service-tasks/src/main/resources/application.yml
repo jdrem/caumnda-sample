@@ -16,13 +16,4 @@ camunda.bpm:
       process-order:
         lock-duration: 10000 # Defines for how long the External Tasks are locked until they can be fetched again
 
-#spring:
-#  datasource:
-#    url: jdbc:h2:mem:testdb
-#    driver-class-name: org.h2.Driver
-#    username: sa
-#    password:
-#  jpa:
-#    database-platform: org.hibernate.dialest.H2Dialect
-
 logging.level.org.camunda.bpm.client: info

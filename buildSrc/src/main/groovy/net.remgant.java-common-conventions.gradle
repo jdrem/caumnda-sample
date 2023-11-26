@@ -5,11 +5,19 @@
 plugins {
     // Apply the java Plugin to add support for Java.
     id 'java'
+    id 'io.freefair.lombok'
 }
 
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+}
+
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 ext {
@@ -27,24 +35,10 @@ ext {
 
 
 dependencies {
-    constraints {
-        // Define dependency versions as constraints
-        implementation 'org.apache.commons:commons-text:1.9'
-    }
-
     implementation 'org.projectlombok:lombok:1.18.22'
 
-    implementation platform('org.springframework.boot:spring-boot-dependencies:3.1.4')
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.slf4j:slf4j-api:1.7.36'
-
-//    implementation platform("org.camunda.bpm:camunda-bom:${camundaPlatformVersion}")
-//    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-external-task-client'
-//    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest'
-//    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp'
-//    implementation 'org.camunda.bpm:camunda-engine-plugin-spin'
-//    implementation 'org.camunda.spin:camunda-spin-dataformat-all'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
 
     implementation 'org.graalvm.js:js:21.1.0'
     implementation 'org.graalvm.js:js-scriptengine:21.1.0'
@@ -54,7 +48,7 @@ dependencies {
     runtimeOnly 'ch.qos.logback:logback-core:1.2.11'
     runtimeOnly 'ch.qos.logback:logback-classic:1.2.11'
 
-    implementation 'com.h2database:h2'
+    implementation 'com.h2database:h2-mvstore:2.1.214'
 
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'

@@ -1,0 +1,7 @@
+plugins {
+    id 'net.remgant.java-library-conventions'
+}
+
+compileJava {
+    options.release = 11
+}

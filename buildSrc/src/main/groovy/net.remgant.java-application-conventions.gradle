@@ -9,3 +9,11 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
 }
+
+dependencies {
+    implementation project(':models')
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.1.4')
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+}
