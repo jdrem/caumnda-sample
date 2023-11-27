@@ -42,9 +42,8 @@ public class OrderLinesHandlerConfiguration {
         return (externalTask, externalTaskService) -> {
             OrderLine orderLine = externalTask.getVariable("OrderLine");
             log.info("Sending order line to external source: {}", orderLine);
-
-            Map<String, Object> variables = Map.of("OrderLineValid", true);
-            externalTaskService.complete(externalTask, variables);
+            orderLine.setCompleted(true);
+            externalTaskService.complete(externalTask, Map.of("OrderLine", orderLine));
         };
 
     }

@@ -14,4 +14,12 @@ public class OrderLine {
     private String itemName;
     private int itemQuantity;
     private BigDecimal itemPrice;
+    private boolean completed;
+    public OrderLine(String id, String itemName, int itemQuantity, BigDecimal itemPrice) {
+        this.id = id;
+        this.itemName = itemName;
+        this.itemQuantity = itemQuantity;
+        this.itemPrice = itemPrice;
+        this.completed = false;
+    }
 }
