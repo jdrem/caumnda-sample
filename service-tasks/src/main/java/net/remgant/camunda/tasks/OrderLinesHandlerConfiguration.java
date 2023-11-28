@@ -1,21 +1,19 @@
 package net.remgant.camunda.tasks;
 
+import lombok.extern.slf4j.Slf4j;
 import net.remgant.camunda.models.Order;
 import net.remgant.camunda.models.OrderLine;
 import org.camunda.bpm.client.spring.annotation.ExternalTaskSubscription;
 import org.camunda.bpm.client.spring.boot.starter.ClientProperties;
 import org.camunda.bpm.client.task.ExternalTaskHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
 
 @Configuration
-
+@Slf4j
 public class OrderLinesHandlerConfiguration {
-    private final static Logger log = LoggerFactory.getLogger(OrderLinesHandlerConfiguration.class);
     protected String workerId;
 
     public OrderLinesHandlerConfiguration(ClientProperties properties) {
