@@ -1,5 +1,6 @@
 package net.remgant.camunda.sender;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.remgant.camunda.models.Order;
 import net.remgant.camunda.models.OrderLine;
@@ -16,10 +17,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class MessageSender implements CommandLineRunner {
@@ -53,16 +56,22 @@ public class MessageSender implements CommandLineRunner {
         Order order = new Order(businessKey, "Jones", BigDecimal.valueOf(35.0), orderLines);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(order);
-        //json = json.replace("\"", "\\\"");
+        List<String> orderLinesList = new ArrayList<>();
+        for (OrderLine ol : orderLines) {
+            orderLinesList.add(objectMapper.writeValueAsString(ol));
+        }
+        String orderLinesListStr = objectMapper.writeValueAsString(orderLinesList);
         Map<String, Object> body = Map.of("businessKey", businessKey,
                 "variables",
-                Map.of("key1", Map.of("value", randomString.get(), "type", "String"),
-                        "key2", Map.of("value", randomString.get(), "type", "String"),
+                Map.of(
                         "OrderMessage", Map.of("value", json, "type", "Object",
-//                                "valueInfo", Map.of("objectTypeName", "java.util.HashMap<java.lang.String,java.lang.Object>",
                                 "valueInfo", Map.of("objectTypeName", "net.remgant.camunda.models.Order",
+                                        "serializationDataFormat", "application/json")),
+                        "OrderMessageList", Map.of("value", orderLinesListStr, "type", "Object",
+                                "valueInfo", Map.of("objectTypeName", "java.util.ArrayList<java.lang.String>",
+                                        "serializationDataFormat", "application/json"))
+                ));
 
-                                        "serializationDataFormat", "application/json"))));
         @SuppressWarnings("rawtypes")
         Mono<Map> result = WebClient.create()
                 .post()
