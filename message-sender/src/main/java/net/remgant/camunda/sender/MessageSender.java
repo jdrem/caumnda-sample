@@ -53,16 +53,11 @@ public class MessageSender implements CommandLineRunner {
         Order order = new Order(businessKey, "Jones", BigDecimal.valueOf(35.0), orderLines);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(order);
-        //json = json.replace("\"", "\\\"");
         Map<String, Object> body = Map.of("businessKey", businessKey,
                 "variables",
-                Map.of("key1", Map.of("value", randomString.get(), "type", "String"),
-                        "key2", Map.of("value", randomString.get(), "type", "String"),
-                        "OrderMessage", Map.of("value", json, "type", "Object",
-//                                "valueInfo", Map.of("objectTypeName", "java.util.HashMap<java.lang.String,java.lang.Object>",
+                Map.of("OrderMessage", Map.of("value", json, "type", "Object",
                                 "valueInfo", Map.of("objectTypeName", "net.remgant.camunda.models.Order",
-
-                                        "serializationDataFormat", "application/json"))));
+                                "serializationDataFormat", "application/json"))));
         @SuppressWarnings("rawtypes")
         Mono<Map> result = WebClient.create()
                 .post()
