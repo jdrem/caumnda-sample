@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Map;
 
 @Configuration
-
 @Slf4j
 public class OrderLinesHandlerConfiguration {
     protected String workerId;
@@ -27,7 +26,6 @@ public class OrderLinesHandlerConfiguration {
     @Bean
     public ExternalTaskHandler validateOrderLine() {
         return (externalTask, externalTaskService) -> {
-//            OrderLine orderLine = externalTask.getVariable("OrderLine");
             String orderLineString = externalTask.getVariable("OrderLine");
             ObjectMapper objectMapper = new ObjectMapper();
             OrderLine orderLine;
