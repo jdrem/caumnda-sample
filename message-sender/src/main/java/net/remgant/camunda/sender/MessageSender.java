@@ -17,12 +17,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class MessageSender implements CommandLineRunner {
@@ -56,11 +54,14 @@ public class MessageSender implements CommandLineRunner {
         Order order = new Order(businessKey, "Jones", BigDecimal.valueOf(35.0), orderLines);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(order);
-        List<String> orderLinesList = new ArrayList<>();
-        for (OrderLine ol : orderLines) {
-            orderLinesList.add(objectMapper.writeValueAsString(ol));
-        }
-        String orderLinesListStr = objectMapper.writeValueAsString(orderLinesList);
+        String orderLinesListStr = objectMapper.writeValueAsString(orderLines.stream().map(ol -> {
+            try {
+                return objectMapper.writeValueAsString(ol);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList());
+
         Map<String, Object> body = Map.of("businessKey", businessKey,
                 "variables",
                 Map.of(
@@ -68,7 +69,7 @@ public class MessageSender implements CommandLineRunner {
                                 "valueInfo", Map.of("objectTypeName", "net.remgant.camunda.models.Order",
                                         "serializationDataFormat", "application/json")),
                         "OrderMessageList", Map.of("value", orderLinesListStr, "type", "Object",
-                                "valueInfo", Map.of("objectTypeName", "java.util.ArrayList<java.lang.String>",
+                                "valueInfo", Map.of("objectTypeName", "java.util.List<java.lang.String>",
                                         "serializationDataFormat", "application/json"))
                 ));
 
