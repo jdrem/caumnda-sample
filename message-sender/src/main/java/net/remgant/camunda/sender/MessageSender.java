@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -45,31 +46,42 @@ public class MessageSender implements CommandLineRunner {
     @SuppressWarnings("RedundantThrows")
     @Override
     public void run(String... args) throws Exception {
-        String businessKey = String.format("busisness-key-%s", randomString.get());
-        List<OrderLine> orderLines = List.of(
-           new OrderLine(businessKey+"0001", "door", 1, BigDecimal.valueOf(20.0)),
-           new OrderLine(businessKey+"0002", "handle", 2, BigDecimal.valueOf(5.0)),
-           new OrderLine(businessKey+"0003", "hinge", 2, BigDecimal.valueOf(2.50))
-        );
-        Order order = new Order(businessKey, "Jones", BigDecimal.valueOf(35.0), orderLines);
         ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(order);
-        String orderLinesListStr = objectMapper.writeValueAsString(orderLines.stream().map(ol -> {
-            try {
-                return objectMapper.writeValueAsString(ol);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }).toList());
+        String businessKey = String.format("busisness-key-%s", randomString.get());
+        List<Order> listOfOrders = new ArrayList<>();
+        List<List<String>> listOfLists = new ArrayList<>();
+        for (int i = 0; i<3; i++) {
+            List<OrderLine> orderLines = List.of(
+                    new OrderLine(businessKey + "0001", "door", 1, BigDecimal.valueOf(20.0)),
+                    new OrderLine(businessKey + "0002", "handle", 2, BigDecimal.valueOf(5.0)),
+                    new OrderLine(businessKey + "0003", "hinge", 2, BigDecimal.valueOf(2.50))
+            );
+            Order order = new Order(businessKey, "Jones", BigDecimal.valueOf(35.0), orderLines);
+            List<String> orderLinesListStr = orderLines.stream().map(ol -> {
+                try {
+                    return objectMapper.writeValueAsString(ol);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }).toList();
+            listOfLists.add(orderLinesListStr);
 
+        listOfOrders.add(order);
+        }
+
+        String json = objectMapper.writeValueAsString(listOfOrders);
+        String listOfListsOfOrdersStr = objectMapper.writeValueAsString(listOfLists);
+
+
+        log.info("ListOfLists: {}", listOfListsOfOrdersStr);
         Map<String, Object> body = Map.of("businessKey", businessKey,
                 "variables",
                 Map.of(
                         "OrderMessage", Map.of("value", json, "type", "Object",
                                 "valueInfo", Map.of("objectTypeName", "net.remgant.camunda.models.Order",
                                         "serializationDataFormat", "application/json")),
-                        "OrderMessageList", Map.of("value", orderLinesListStr, "type", "Object",
-                                "valueInfo", Map.of("objectTypeName", "java.util.List<java.lang.String>",
+                        "ListOfOrderMessageList", Map.of("value", listOfListsOfOrdersStr, "type", "Object",
+                                "valueInfo", Map.of("objectTypeName", "java.util.List<java.util.List<java.lang.String>>",
                                         "serializationDataFormat", "application/json"))
                 ));
 

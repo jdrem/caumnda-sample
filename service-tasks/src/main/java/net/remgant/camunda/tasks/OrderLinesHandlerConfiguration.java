@@ -11,6 +11,7 @@ import org.camunda.bpm.client.task.ExternalTaskHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -73,8 +74,8 @@ public class OrderLinesHandlerConfiguration {
     public ExternalTaskHandler finishOrderLines() {
 
         return (externalTask, externalTaskService) -> {
-            Order order = externalTask.getVariable("OrderMessage");
-            log.info("Finished order: {}", order);
+            List<String> orderMsgList = externalTask.getVariable("OrderMessageList");
+            log.info("Finished order: {}", orderMsgList);
             externalTaskService.complete(externalTask);
         };
 
