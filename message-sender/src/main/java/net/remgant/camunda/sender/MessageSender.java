@@ -83,7 +83,8 @@ public class MessageSender implements CommandLineRunner {
                 });
         @SuppressWarnings("unchecked")
         Map<String, Object> latestResult = result.block();
-        log.info("Latest result: {}", latestResult);
+        if (latestResult != null)
+            log.info("Latest result: {}", latestResult);
 
     }
 }
