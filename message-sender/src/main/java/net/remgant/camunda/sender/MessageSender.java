@@ -2,7 +2,6 @@ package net.remgant.camunda.sender;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.remgant.camunda.models.Order;
 import net.remgant.camunda.models.OrderLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ public class MessageSender implements CommandLineRunner {
     String scheme = "http";
     String host = "localhost";
     int port = 8080;
-    String processKey = "ProcessOrderLines";
 
     Random random = new Random();
     Supplier<String> randomString = () -> random.ints(97, 122)
@@ -45,15 +43,12 @@ public class MessageSender implements CommandLineRunner {
     @SuppressWarnings("RedundantThrows")
     @Override
     public void run(String... args) throws Exception {
-        String businessKey = String.format("busisness-key-%s", randomString.get());
         List<OrderLine> orderLines = List.of(
-           new OrderLine(businessKey+"0001", "door", 1, BigDecimal.valueOf(20.0)),
-           new OrderLine(businessKey+"0002", "handle", 2, BigDecimal.valueOf(5.0)),
-           new OrderLine(businessKey+"0003", "hinge", 2, BigDecimal.valueOf(2.50))
+           new OrderLine(randomString.get(), "door", 1, BigDecimal.valueOf(20.0)),
+           new OrderLine(randomString.get(), "handle", 2, BigDecimal.valueOf(5.0)),
+           new OrderLine(randomString.get(), "hinge", 2, BigDecimal.valueOf(2.50))
         );
-        Order order = new Order(businessKey, "Jones", BigDecimal.valueOf(35.0), orderLines);
         ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(order);
         String orderLinesListStr = objectMapper.writeValueAsString(orderLines.stream().map(ol -> {
             try {
                 return objectMapper.writeValueAsString(ol);
@@ -62,17 +57,12 @@ public class MessageSender implements CommandLineRunner {
             }
         }).toList());
 
-        Map<String, Object> body = Map.of("businessKey", businessKey,
-                "variables",
-                Map.of(
-                        "OrderMessage", Map.of("value", json, "type", "Object",
-                                "valueInfo", Map.of("objectTypeName", "net.remgant.camunda.models.Order",
-                                        "serializationDataFormat", "application/json")),
-                        "OrderMessageList", Map.of("value", orderLinesListStr, "type", "Object",
+        Map<String, Object> body1 =  Map.of("messageName", "order-message",
+                "processVariables",
+                Map.of("OrderMessageList", Map.of("value", orderLinesListStr, "type", "Object",
                                 "valueInfo", Map.of("objectTypeName", "java.util.List<java.lang.String>",
                                         "serializationDataFormat", "application/json"))
                 ));
-
         @SuppressWarnings("rawtypes")
         Mono<Map> result = WebClient.create()
                 .post()
@@ -80,13 +70,13 @@ public class MessageSender implements CommandLineRunner {
                         .scheme(scheme)
                         .host(host)
                         .port(port)
-                        .path(String.format("engine-rest/process-definition/key/%s/start", processKey))
+                        .path("engine-rest/message")
                         .build())
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Accept", MediaType.APPLICATION_JSON_VALUE)
-                .body(BodyInserters.fromValue(body))
+                .body(BodyInserters.fromValue(body1))
                 .exchangeToMono(response -> {
-                    if (response.statusCode().equals(HttpStatus.OK))
+                    if (response.statusCode().equals(HttpStatus.OK) || response.statusCode().equals(HttpStatus.NO_CONTENT))
                         return response.bodyToMono(Map.class);
                     else
                         throw new RuntimeException("error sending message: " + response.statusCode());

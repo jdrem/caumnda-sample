@@ -6,7 +6,7 @@
   <bpmn:process id="ProcessOrderLines" name="Process Order Lines" isExecutable="true">
     <bpmn:startEvent id="StartEvent_2" name="Start">
       <bpmn:outgoing>Flow_0l2jnln</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0khkx5c" messageRef="Message_06d0skg" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0khkx5c" messageRef="Message_3pa2n18" />
     </bpmn:startEvent>
     <bpmn:serviceTask id="Activity_1jlwu2o" name="Finish Order Lines" camunda:type="external" camunda:topic="finish-order-lines">
       <bpmn:incoming>Flow_0ddjltl</bpmn:incoming>
@@ -60,6 +60,8 @@
     <bpmn:sequenceFlow id="Flow_1lnj9f0" sourceRef="Activity_1jlwu2o" targetRef="Event_0ehrwgn" />
   </bpmn:process>
   <bpmn:message id="Message_06d0skg" name="Message_06d0skg" />
+  <bpmn:message id="Message_3v33tci" name="Message_3v33tci" />
+  <bpmn:message id="Message_3pa2n18" name="order-message" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1sy7cew">
       <bpmndi:BPMNShape id="Participant_0ir9l8d_di" bpmnElement="Participant_0ir9l8d" isHorizontal="true">
