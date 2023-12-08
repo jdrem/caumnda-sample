@@ -1,10 +1,14 @@
 package net.remgant.camunda.models;
 
+import lombok.Getter;
+
+@Getter
 public class ProcessVariable {
     private String value;
     private String type;
     private ValueInfo valueInfo;
 
+    @SuppressWarnings("unused")
     public ProcessVariable() {
     }
 
@@ -12,17 +16,5 @@ public class ProcessVariable {
         this.value = value;
         this.type = type;
         this.valueInfo = valueInfo;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public ValueInfo getValueInfo() {
-        return valueInfo;
     }
 }
