@@ -2,7 +2,10 @@ package net.remgant.camunda.sender;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.remgant.camunda.models.Message;
 import net.remgant.camunda.models.OrderLine;
+import net.remgant.camunda.models.ProcessVariable;
+import net.remgant.camunda.models.ValueInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -14,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoSink;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -57,12 +61,10 @@ public class MessageSender implements CommandLineRunner {
             }
         }).toList());
 
-        Map<String, Object> body1 =  Map.of("messageName", "order-message",
-                "processVariables",
-                Map.of("OrderMessageList", Map.of("value", orderLinesListStr, "type", "Object",
-                                "valueInfo", Map.of("objectTypeName", "java.util.List<java.lang.String>",
-                                        "serializationDataFormat", "application/json"))
-                ));
+        Message message = new Message("order-message", Map.of("OrderMessageList",
+                new ProcessVariable(orderLinesListStr, "object",
+                        new ValueInfo("java.util.List<java.lang.String>", "application/json"))));
+
         @SuppressWarnings("rawtypes")
         Mono<Map> result = WebClient.create()
                 .post()
@@ -74,10 +76,12 @@ public class MessageSender implements CommandLineRunner {
                         .build())
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Accept", MediaType.APPLICATION_JSON_VALUE)
-                .body(BodyInserters.fromValue(body1))
+                .body(BodyInserters.fromValue(message))
                 .exchangeToMono(response -> {
-                    if (response.statusCode().equals(HttpStatus.OK) || response.statusCode().equals(HttpStatus.NO_CONTENT))
+                    if (response.statusCode().equals(HttpStatus.OK))
                         return response.bodyToMono(Map.class);
+                    else if (response.statusCode().equals(HttpStatus.NO_CONTENT))
+                        return Mono.create(MonoSink::success);
                     else
                         throw new RuntimeException("error sending message: " + response.statusCode());
                 });
