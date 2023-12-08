@@ -2,16 +2,19 @@ package net.remgant.camunda.sender;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.Feign;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
 import lombok.extern.slf4j.Slf4j;
 import net.remgant.camunda.models.Message;
 import net.remgant.camunda.models.OrderLine;
 import net.remgant.camunda.models.ProcessVariable;
 import net.remgant.camunda.models.ValueInfo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,14 +23,13 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 @SpringBootApplication
-@EnableFeignClients
 @Slf4j
 public class MessageSender implements CommandLineRunner {
 
-    final private CamundaClient camundaClient;
+    @Value("${feign.url}")
+    private String camundaUrl;
 
-    public MessageSender(CamundaClient camundaClient) {
-        this.camundaClient = camundaClient;
+    public MessageSender() {
     }
 
     Random random = new Random();
@@ -46,9 +48,9 @@ public class MessageSender implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         List<OrderLine> orderLines = List.of(
-           new OrderLine(randomString.get(), "door", 1, BigDecimal.valueOf(20.0)),
-           new OrderLine(randomString.get(), "handle", 2, BigDecimal.valueOf(5.0)),
-           new OrderLine(randomString.get(), "hinge", 2, BigDecimal.valueOf(2.50))
+                new OrderLine(randomString.get(), "door", 1, BigDecimal.valueOf(20.0)),
+                new OrderLine(randomString.get(), "handle", 2, BigDecimal.valueOf(5.0)),
+                new OrderLine(randomString.get(), "hinge", 2, BigDecimal.valueOf(2.50))
         );
         ObjectMapper objectMapper = new ObjectMapper();
         String orderLinesListStr = objectMapper.writeValueAsString(orderLines.stream().map(ol -> {
@@ -62,6 +64,11 @@ public class MessageSender implements CommandLineRunner {
         Message message = new Message("order-message", Map.of("OrderMessageList",
                 new ProcessVariable(orderLinesListStr, "object",
                         new ValueInfo("java.util.List<java.lang.String>", "application/json"))));
+
+        CamundaClient camundaClient = Feign.builder()
+                .encoder(new JacksonEncoder())
+                .decoder(new JacksonDecoder())
+                .target(CamundaClient.class, camundaUrl);
 
         camundaClient.sendMessage(message);
     }

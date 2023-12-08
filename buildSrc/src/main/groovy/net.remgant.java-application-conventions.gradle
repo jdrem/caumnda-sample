@@ -13,8 +13,8 @@ plugins {
 dependencies {
     implementation project(':models')
     implementation platform('org.springframework.boot:spring-boot-dependencies:3.2.0')
-    implementation platform('org.springframework.cloud:spring-cloud-dependencies:2023.0.0')
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'io.github.openfeign:feign-core:13.1'
+    implementation 'io.github.openfeign:feign-jackson:13.1'
     implementation 'org.slf4j:slf4j-api:1.7.36'
 }
