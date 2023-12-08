@@ -4,5 +4,5 @@ plugins {
 
 application {
     // Define the main class for the application.
-    mainClass = 'net.remgant.camunda.MessageSender'
+    mainClass = 'net.remgant.camunda.sender.MessageSender'
 }

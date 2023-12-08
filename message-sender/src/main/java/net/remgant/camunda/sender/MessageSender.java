@@ -2,22 +2,16 @@ package net.remgant.camunda.sender;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import net.remgant.camunda.models.Message;
 import net.remgant.camunda.models.OrderLine;
 import net.remgant.camunda.models.ProcessVariable;
 import net.remgant.camunda.models.ValueInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoSink;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,11 +20,15 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 @SpringBootApplication
+@EnableFeignClients
+@Slf4j
 public class MessageSender implements CommandLineRunner {
-    private final static Logger log = LoggerFactory.getLogger(MessageSender.class);
-    String scheme = "http";
-    String host = "localhost";
-    int port = 8080;
+
+    final private CamundaClient camundaClient;
+
+    public MessageSender(CamundaClient camundaClient) {
+        this.camundaClient = camundaClient;
+    }
 
     Random random = new Random();
     Supplier<String> randomString = () -> random.ints(97, 122)
@@ -65,30 +63,6 @@ public class MessageSender implements CommandLineRunner {
                 new ProcessVariable(orderLinesListStr, "object",
                         new ValueInfo("java.util.List<java.lang.String>", "application/json"))));
 
-        @SuppressWarnings("rawtypes")
-        Mono<Map> result = WebClient.create()
-                .post()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme(scheme)
-                        .host(host)
-                        .port(port)
-                        .path("engine-rest/message")
-                        .build())
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Accept", MediaType.APPLICATION_JSON_VALUE)
-                .body(BodyInserters.fromValue(message))
-                .exchangeToMono(response -> {
-                    if (response.statusCode().equals(HttpStatus.OK))
-                        return response.bodyToMono(Map.class);
-                    else if (response.statusCode().equals(HttpStatus.NO_CONTENT))
-                        return Mono.create(MonoSink::success);
-                    else
-                        throw new RuntimeException("error sending message: " + response.statusCode());
-                });
-        @SuppressWarnings("unchecked")
-        Map<String, Object> latestResult = result.block();
-        if (latestResult != null)
-            log.info("Latest result: {}", latestResult);
-
+        camundaClient.sendMessage(message);
     }
 }

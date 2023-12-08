@@ -12,8 +12,9 @@ plugins {
 
 dependencies {
     implementation project(':models')
-    implementation platform('org.springframework.boot:spring-boot-dependencies:3.1.4')
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.2.0')
+    implementation platform('org.springframework.cloud:spring-cloud-dependencies:2023.0.0')
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'org.slf4j:slf4j-api:1.7.36'
 }
